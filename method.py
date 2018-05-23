@@ -21,5 +21,26 @@ for i in range(300):
     for k in range (len(pos)):
         pre[k] = pos[k]
 plt.show()
-        
+
 print(pos)
+
+def analitical_solution(self, x, t, alpha, size):
+        number_of_nodes = int(round(size / x))
+        temperatures = []
+        for i in range(number_of_nodes):
+            temp = 80/math.pi
+            k1 = ((math.pi**2)*alpha*t)/2500
+            k2 = (math.pi*x)/50
+
+            iteration = 0
+            n = 1
+            while n <= 100:
+                iteration += (1/n) * (math.e**(k1*(-n**2))) * (math.sin(n*k2))
+                n +=2
+            
+            temp *= iteration
+            temperatures.append(temp)
+
+        print(temperatures)
+        return temperatures
+    

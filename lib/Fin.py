@@ -1,4 +1,5 @@
 import sys
+import math
 # from Matrix import *
 
 class Fin:
