@@ -50,10 +50,6 @@ def solve(pre, alpha, length, pontos, iterations):
                 pre.data[i][j] = pos.data[i][j]
     
     return pos
-
-
-    
-    
     
 
 def analitical_solution(self, x, t, alpha, size):
