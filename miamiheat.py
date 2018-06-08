@@ -103,9 +103,11 @@ def main(argv):
     alpha = 9.4967 * 10**(-5)
     board = buildBoard(pontos, top, bot, left, right, center)
     it+=1
-    pos, list_of_matrix = solve(board, alpha, lenght, pontos, it, top, bot, left, right)
+    pos, list_of_matrix, iteracoes = solve(board, alpha, lenght, pontos, it, top, bot, left, right)
         
-    plotBoard(list_of_matrix, pontos, it)
+    print("Iteracoes: ", iteracoes)
+
+    plotBoard(list_of_matrix, pontos, iteracoes+1)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

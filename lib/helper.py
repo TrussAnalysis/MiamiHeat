@@ -56,6 +56,8 @@ def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
     deltaX = length/pontos
     fourier = (alpha * 1)/ math.pow(deltaX, 2)
     pos = Matrix(pontos, pontos)
+    tol = 0.001
+
     
     # Copy
     for i in range (pre.rows):
@@ -64,6 +66,7 @@ def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
 
     # Calculate borders if they are isolated
     for jkl in range(iterations):
+        aceitos = 0
         
         if(isinstance(top, str)):
             for j in range(1,pre.cols - 1):
@@ -83,7 +86,7 @@ def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
                 # else:
                 pos.data[pre.cols-1][j] = fourier * ((pre.data[pre.cols-2][j] * 2) + pre.data[pre.cols-1][j+1] + pre.data[pre.cols-1][j-1]) + (1- 4*fourier) * pre.data[pre.cols-1][j]
         
-        if(isinstance(left, str)):
+        if(isinstance(right, str)):
             for i in range(1,pre.cols - 1):
                 # if i==1:
                 #     pos.data[i][pre.cols-1] = fourier * ((pre.data[i][pre.cols-2] * 2) + pre.data[i+1][pre.cols-1]\
@@ -95,7 +98,7 @@ def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
                 pos.data[i][pre.cols-1] = fourier * ((pre.data[i][pre.cols-2] * 2) + pre.data[i+1][pre.cols-1] + pre.data[i-1][pre.cols-1])\
                             + (1- 4*fourier) * pre.data[i][pre.cols-1]
 
-        if(isinstance(right, str)):
+        if(isinstance(left, str)):
             for i in range(1,pre.cols - 1):
                 # if i==1:
                 #     pos.data[i][0] = fourier * ((pre.data[i][1] * 2) + pre.data[i+1][0]\
@@ -115,6 +118,10 @@ def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
                 pos.data[i][j] = fourier * (pre.data[i+1][j] + pre.data[i-1][j] +
                                         pre.data[i][j+1] + pre.data[i][j-1]) +\
                                         ((1-4*fourier) * pre.data[i][j])
+                if pos.data[i][j] > 0:
+                    erro = (pos.data[i][j] - pre.data[i][j])/pos.data[i][j]
+                    if(erro <= tol):
+                        aceitos += 1
         
         # Send to clean matrix
         for i in range (pre.rows):
@@ -122,8 +129,13 @@ def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
                 pre.data[i][j] = pos.data[i][j]
                 list_of_matrix[jkl].data[i][j] = pos.data[i][j]
 
+        # print("Pontos de dentro: ", ((pre.rows-2)*(pre.rows-2)))
+        # print("Aceitos: ", aceitos)
+
+        if aceitos == ((pre.rows-2)*(pre.rows-2)):
+            break
     
-    return pos, list_of_matrix
+    return pos, list_of_matrix, jkl
 
 # Plot board into MatPlotLib with time sliders
 def plotBoard(list_of_matrix, pontos, it):
@@ -142,7 +154,7 @@ def plotBoard(list_of_matrix, pontos, it):
     fig.colorbar(im1)
 
     axcolor = 'lightgoldenrodyellow'
-    axmax  = fig.add_axes([0.25, 0.15, 0.65, 0.03], axisbg=axcolor)
+    axmax  = fig.add_axes([0.25, 0.15, 0.65, 0.03])#, axisbg=axcolor)
 
     t = Slider(axmax, 'Tempo', 0, it-1, valinit=0, valfmt='%d')
 
