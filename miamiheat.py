@@ -4,9 +4,7 @@ import sys
 
 sys.path.insert(0, './lib')
 
-from animation import *
-from Board import Board
-from Fin import Fin
+from helper import *
 from Matrix import Matrix
 
 # import matplotlib
@@ -100,7 +98,13 @@ def main(argv):
 
     it, lenght, pontos, top, bot, left, right, center = openFile(inputfile)
     board = buildBoard(pontos, top, bot, left, right, center)
-    print(board.console())
+
+    it = 200
+    it+=1
+    alpha = 9.4967 * 10**(-5)
+    pos, list_of_matrix = solve(board, alpha, lenght, pontos, it, top, bot, left, right)
+
+    plotBoard(list_of_matrix, pontos, it)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

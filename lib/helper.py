@@ -1,13 +1,12 @@
-# import matplotlib
-# # matplotlib.use('TkAgg')
-# import matplotlib.pyplot as plt
-# import numpy as np
-# from matplotlib.widgets import Slider, Button, RadioButtons
+import matplotlib
+# matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.widgets import Slider, Button, RadioButtons
 from Matrix import Matrix
-
-
-# import math
+import math
 # plt.switch_backend('Qt5Agg')
+
 def fillMatrix(it, pontos):
     lista = []
     for i in range (it):
@@ -15,7 +14,7 @@ def fillMatrix(it, pontos):
         lista.append(m)
     return lista
     
-
+#Prepare board to be used
 def buildBoard(points, top, bot, left, right, overall):
     board = Matrix(points, points)
 
@@ -51,8 +50,8 @@ def buildBoard(points, top, bot, left, right, overall):
             board.data[i][j] = overall
     return board
 
-        
-def solve(pre, alpha, length, pontos, iterations):
+# Use numeric methods to solve system dynamics 
+def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
     list_of_matrix = fillMatrix(iterations, pontos)
     deltaX = length/pontos
     fourier = (alpha * 1)/ math.pow(deltaX, 2)
@@ -126,46 +125,30 @@ def solve(pre, alpha, length, pontos, iterations):
     
     return pos, list_of_matrix
 
-# it, lenght, pontos, top, bot, left, right, center = openFile("info.txt")
+# Plot board into MatPlotLib with time sliders
+def plotBoard(list_of_matrix, pontos, it):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    fig.subplots_adjust(left=0.25, bottom=0.25)
+    min0 = 0
+    max0 = 25000
 
-# board = buildBoard(pontos, top, bot, left, right, center)
+    inter = None
+    if(pontos >= 10):
+        inter = 'gaussian'
 
-# pontos = 7
-alpha = 9.4967 * 10**(-5)
-# alpha = 9.4967 * 10**(-6)
-# length = 0.4
+    im1 = ax.imshow(list_of_matrix[0].data, cmap='jet', interpolation=inter)
 
-# board = buildBoard
-#(pontos,100,0,75,50,0)
+    fig.colorbar(im1)
 
+    axcolor = 'lightgoldenrodyellow'
+    axmax  = fig.add_axes([0.25, 0.15, 0.65, 0.03], axisbg=axcolor)
 
-# it = 200
-# it+=1
-# pos, list_of_matrix = solve(board, alpha, lenght, pontos, it)
+    t = Slider(axmax, 'Tempo', 0, it-1, valinit=0, valfmt='%d')
 
-# fig = plt.figure()
-# ax = fig.add_subplot(111)
-# fig.subplots_adjust(left=0.25, bottom=0.25)
-# min0 = 0
-# max0 = 25000
+    def update(val):
+        im1.set_data(list_of_matrix[int(t.val)].data)
+        fig.canvas.draw()
+    t.on_changed(update)
 
-
-# inter = None
-# if(pontos >= 10):
-#     inter = 'gaussian'
-
-# im1 = ax.imshow(list_of_matrix[0].data, cmap='jet', interpolation=inter)
-
-# fig.colorbar(im1)
-
-# axcolor = 'lightgoldenrodyellow'
-# axmax  = fig.add_axes([0.25, 0.15, 0.65, 0.03], axisbg=axcolor)
-
-# t = Slider(axmax, 'Tempo', 0, it-1, valinit=0, valfmt='%d')
-
-# def update(val):
-#     im1.set_data(list_of_matrix[int(t.val)].data)
-#     fig.canvas.draw()
-# t.on_changed(update)
-
-# plt.show()
+    plt.show()
