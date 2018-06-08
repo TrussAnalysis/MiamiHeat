@@ -1,0 +1,9 @@
+
+Tempo: 200
+Tamanho: 0.4
+Pontos: 20
+Temperatura de cima: 150
+Temperatura de baixo: 0
+Temperatura da esquerda: 0
+Temperatura da direita: isolado
+Temperatura do centro: 0

@@ -6,6 +6,8 @@ sys.path.insert(0, './lib')
 
 from helper import *
 from Matrix import Matrix
+import time
+
 
 # import matplotlib
 # # matplotlib.use('TkAgg')
@@ -95,15 +97,14 @@ def main(argv):
         sys.exit()
     else:
         print('Input file is:', inputfile)
+   
 
     it, lenght, pontos, top, bot, left, right, center = openFile(inputfile)
-    board = buildBoard(pontos, top, bot, left, right, center)
-
-    it = 200
-    it+=1
     alpha = 9.4967 * 10**(-5)
+    board = buildBoard(pontos, top, bot, left, right, center)
+    it+=1
     pos, list_of_matrix = solve(board, alpha, lenght, pontos, it, top, bot, left, right)
-
+        
     plotBoard(list_of_matrix, pontos, it)
 
 if __name__ == "__main__":

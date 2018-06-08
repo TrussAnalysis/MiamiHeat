@@ -83,7 +83,7 @@ def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
                 # else:
                 pos.data[pre.cols-1][j] = fourier * ((pre.data[pre.cols-2][j] * 2) + pre.data[pre.cols-1][j+1] + pre.data[pre.cols-1][j-1]) + (1- 4*fourier) * pre.data[pre.cols-1][j]
         
-        if(isinstance(right, str)):
+        if(isinstance(left, str)):
             for i in range(1,pre.cols - 1):
                 # if i==1:
                 #     pos.data[i][pre.cols-1] = fourier * ((pre.data[i][pre.cols-2] * 2) + pre.data[i+1][pre.cols-1]\
@@ -95,7 +95,7 @@ def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
                 pos.data[i][pre.cols-1] = fourier * ((pre.data[i][pre.cols-2] * 2) + pre.data[i+1][pre.cols-1] + pre.data[i-1][pre.cols-1])\
                             + (1- 4*fourier) * pre.data[i][pre.cols-1]
 
-        if(isinstance(left, str)):
+        if(isinstance(right, str)):
             for i in range(1,pre.cols - 1):
                 # if i==1:
                 #     pos.data[i][0] = fourier * ((pre.data[i][1] * 2) + pre.data[i+1][0]\
