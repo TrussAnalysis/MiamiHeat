@@ -99,7 +99,6 @@ def main(argv):
     it, lenght, pontos, top, bot, left, right, center = openFile(inputfile)
     board = buildBoard(pontos, top, bot, left, right, center)
 
-    it = 200
     it+=1
     alpha = 9.4967 * 10**(-5)
     pos, list_of_matrix = solve(board, alpha, lenght, pontos, it, top, bot, left, right)
