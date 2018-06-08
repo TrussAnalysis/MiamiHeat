@@ -1,43 +1,110 @@
-import sys, getopt
+import getopt
 import math
+import sys
+
 sys.path.insert(0, './lib')
-from Fin import Fin
-from Board import Board
-# from Matrix import *
-# from File import FileIn, FileOut
+
+from helper import *
+from Matrix import Matrix
+
+# import matplotlib
+# # matplotlib.use('TkAgg')
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from matplotlib.widgets import Slider, Button, RadioButtons
+
+def openFile(path):
+    f = open(path, 'r')
+    linha = f.readline()
+
+    while("Tempo" not in linha):
+        linha = f.readline()
+    l = linha.split( )
+    time = l[1]
+    print("Tempo: ",time)
+
+    while("Tamanho" not in linha):
+        linha = f.readline()
+    l = linha.split( )
+    length = l[1]
+    print("Tamanho: ",length)
+
+    while("Pontos" not in linha):
+        linha = f.readline()
+    l = linha.split( )
+    pontos = l[1]
+    print("Pontos: ",pontos)
+
+    while("cima" not in linha):
+        linha = f.readline()
+    l = linha.split( )
+    top = l[3]
+    print("Cima: ",top)
+
+    while("baixo" not in linha):
+        linha = f.readline()
+    l = linha.split( )
+    bot = l[3]
+    print("Baixo: ",bot)
+
+    while("esquerda" not in linha):
+        linha = f.readline()
+    l = linha.split( )
+    left = l[3]
+    print("Esquerda: ",left)
+
+    while("direita" not in linha):
+        linha = f.readline()
+    l = linha.split( )
+    right = l[3]
+    print("Direita: ",right)
+
+    while("centro" not in linha):
+        linha = f.readline()
+    l = linha.split( )
+    center = l[3]
+    print("Centro: ", center)
+    
+    top=int(top) if top.isdigit() else "isolado"
+    bot=int(bot) if bot.isdigit() else "isolado"
+    left=int(left) if left.isdigit() else "isolado"
+    right=int(right) if right.isdigit() else "isolado"
+
+    return int(time), float(length), int(pontos), top, bot, left, right, int(center)
 
 def main(argv):
-    # inputfile = ''
-    # outputfile = ''
-    # method = 'Gauss-Seidel'
-    # iterations = 500
-    # try:
-    #     opts, args = getopt.getopt(argv, "hi:o:m:n:", ["ifile=", "ofile=", "method=", "iterations="])
-    # except getopt.GetoptError:
-    #     print('Usage is: main.py -i <inputfile> -o <outputfile> -m <method> -n <number of iterations> or test.py -h for help')
-    #     sys.exit(2)
-    # for opt, arg in opts:
-    #     if opt == '-h':
-    #         print('main.py -i <inputfile> -o <outputfile> -m <method> -n <number of iterations>')
-    #         sys.exit()
-    #     elif opt in ("-i", "--ifile"):
-    #         inputfile = arg
-    #     elif opt in ("-o", "--ofile"):
-    #         outputfile = arg
-    #     elif opt in ("-m", "--method"):
-    #         method = arg
-    #     elif opt in ("-n", "--iterations"):
-    #         iterations = arg
-    #     else:
-    #         print('An error ocurred, type "test.py -h for help"')
-    #         sys.exit()
+    inputfile = ''
+    
+    try:
+        opts, args = getopt.getopt(argv, "h:i:", ["ifile="])
+    except getopt.GetoptError:
+        print('Usage is: main.py -i <inputfile> or -h for help')
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print('Usage is: main.py -i <inputfile>')
+            sys.exit()
+        elif opt in ("-i", "--ifile"):
+            inputfile = arg
+        else:
+            print('An error ocurred, type "test.py -h for help"')
+            sys.exit()
+    
+    if inputfile == '':
+        print('Input file not found.')
+        sys.exit()
+    else:
+        print('Input file is:', inputfile)
 
-    # print('Input file is:', inputfile)
-    # print('Output file is:', outputfile)
-    # print("Using {0} method". format(method))
+    it, lenght, pontos, top, bot, left, right, center = openFile(inputfile)
+    board = buildBoard(pontos, top, bot, left, right, center)
 
-    # output = FileOut(outputfile, truss, Matrix.toArray(displacement_matrix), reaction_forces, vector_names, stresses, strains)
-    # output.writeOutputFile()
+    it = 200
+    it+=1
+    alpha = 9.4967 * 10**(-5)
+    pos, list_of_matrix = solve(board, alpha, lenght, pontos, it, top, bot, left, right)
+
+    plotBoard(list_of_matrix, pontos, it)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

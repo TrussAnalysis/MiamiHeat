@@ -1,128 +1,68 @@
 import matplotlib
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.widgets import Slider, Button, RadioButtons
 from Matrix import Matrix
 import math
 # plt.switch_backend('Qt5Agg')
-def matriciones(it, pontos):
+
+def fillMatrix(it, pontos):
     lista = []
     for i in range (it):
         m = Matrix(pontos, pontos)
         lista.append(m)
     return lista
-
-def openFile(path):
-    f = open(path, 'r')
-    linha = f.readline()
-
-    while("Tempo" not in linha):
-        linha = f.readline()
-    l = linha.split( )
-    time = l[1]
-    print("Tempo: ",time)
-
-    while("Tamanho" not in linha):
-        linha = f.readline()
-    l = linha.split( )
-    length = l[1]
-    print("Tamanho: ",length)
-
-    while("Pontos" not in linha):
-        linha = f.readline()
-    l = linha.split( )
-    pontos = l[1]
-    print("Pontos: ",pontos)
-
-    while("cima" not in linha):
-        linha = f.readline()
-    l = linha.split( )
-    top = l[3]
-    print("Cima: ",top)
-
-    while("baixo" not in linha):
-        linha = f.readline()
-    l = linha.split( )
-    bot = l[3]
-    print("Baixo: ",bot)
-
-    while("esquerda" not in linha):
-        linha = f.readline()
-    l = linha.split( )
-    left = l[3]
-    print("Esquerda: ",left)
-
-    while("direita" not in linha):
-        linha = f.readline()
-    l = linha.split( )
-    right = l[3]
-    print("Direita: ",right)
-
-    while("centro" not in linha):
-        linha = f.readline()
-    l = linha.split( )
-    center = l[3]
-    print("Centro: ", center)
     
-    top=int(top) if top.isdigit() else "isolado"
-    bot=int(bot) if bot.isdigit() else "isolado"
-    left=int(left) if left.isdigit() else "isolado"
-    right=int(right) if right.isdigit() else "isolado"
+#Prepare board to be used
+def buildBoard(points, top, bot, left, right, overall):
+    board = Matrix(points, points)
 
-    return int(time), float(length), int(pontos), top, bot, left, right, int(center)
-    
-
-def makeBoard(points, top, bot, left, right, overall):
-    chapa = Matrix(points, points)
-
-    top2 = top
+    # Check if any border is isolated
+    limit_top = top
+    limit_bot = bot
+    limit_right = right
+    limit_left = left
     if top == "isolado":
-        top2 = 0
-    bot2 = bot
+        limit_top = 0
     if bot == "isolado":
-        bot2 = 0
-    right2 = right
+        limit_bot = 0
     if right == "isolado":
-        right2 = 0
-    left2 = left
+        limit_right = 0
     if left == "isolado":
-        left2 = 0
+        limit_left = 0
     
-    
-    for i in range (chapa.rows):
-        for j in range (chapa.cols):
+    # Build board matrix
+    for i in range (board.rows):
+        for j in range (board.cols):
             if (i==0):
-                chapa.data[i][j] = top2
+                board.data[i][j] = limit_top
                 continue
-            if(i == chapa.rows - 1):
-                chapa.data[i][j] = bot2
+            if(i == board.rows - 1):
+                board.data[i][j] = limit_bot
                 continue
             if(j == 0):
-                chapa.data[i][j] = left2
+                board.data[i][j] = limit_left
                 continue
-            if(j == chapa.cols - 1):
-                chapa.data[i][j] = right2
+            if(j == board.cols - 1):
+                board.data[i][j] = limit_right
                 continue
-            chapa.data[i][j] = overall
-    return chapa
+            board.data[i][j] = overall
+    return board
 
-        
-
-
-def solve(pre, alpha, length, pontos, iterations):
-    list_of_matrix = matriciones(iterations, pontos)
+# Use numeric methods to solve system dynamics 
+def solve(pre, alpha, length, pontos, iterations, top, bot, right, left):
+    list_of_matrix = fillMatrix(iterations, pontos)
     deltaX = length/pontos
     fourier = (alpha * 1)/ math.pow(deltaX, 2)
     pos = Matrix(pontos, pontos)
     
-    #copy
+    # Copy
     for i in range (pre.rows):
         for j in range (pre.cols):
             pos.data[i][j] = pre.data[i][j]
 
-    
-    #sponge bob
+    # Calculate borders if they are isolated
     for jkl in range(iterations):
         
         if(isinstance(top, str)):
@@ -169,14 +109,14 @@ def solve(pre, alpha, length, pontos, iterations):
         
         
                                  
-        # shit that matters
+        # Calculate temperature of whole board
         for i in range (1, pre.rows-1):
             for j in range (1, pre.cols-1):
                 pos.data[i][j] = fourier * (pre.data[i+1][j] + pre.data[i-1][j] +
                                         pre.data[i][j+1] + pre.data[i][j-1]) +\
                                         ((1-4*fourier) * pre.data[i][j])
         
-        # another useless copy
+        # Send to clean matrix
         for i in range (pre.rows):
             for j in range (pre.cols):
                 pre.data[i][j] = pos.data[i][j]
@@ -185,46 +125,30 @@ def solve(pre, alpha, length, pontos, iterations):
     
     return pos, list_of_matrix
 
-it, lenght, pontos, top, bot, left, right, center = openFile("info.txt")
+# Plot board into MatPlotLib with time sliders
+def plotBoard(list_of_matrix, pontos, it):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    fig.subplots_adjust(left=0.25, bottom=0.25)
+    min0 = 0
+    max0 = 25000
 
-chapa = makeBoard(pontos, top, bot, left, right, center)
+    inter = None
+    if(pontos >= 10):
+        inter = 'gaussian'
 
-# pontos = 7
-alpha = 9.4967 * 10**(-5)
-# alpha = 9.4967 * 10**(-6)
-# length = 0.4
+    im1 = ax.imshow(list_of_matrix[0].data, cmap='jet', interpolation=inter)
 
-# chapa = makeBoard(pontos,100,0,75,50,0)
+    fig.colorbar(im1)
 
+    axcolor = 'lightgoldenrodyellow'
+    axmax  = fig.add_axes([0.25, 0.15, 0.65, 0.03], axisbg=axcolor)
 
-# it = 200
-it+=1
-pos, list_of_matrix = solve(chapa, alpha, lenght, pontos, it)
+    t = Slider(axmax, 'Tempo', 0, it-1, valinit=0, valfmt='%d')
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-fig.subplots_adjust(left=0.25, bottom=0.25)
-min0 = 0
-max0 = 25000
+    def update(val):
+        im1.set_data(list_of_matrix[int(t.val)].data)
+        fig.canvas.draw()
+    t.on_changed(update)
 
-
-inter = None
-if(pontos >= 10):
-    inter = 'gaussian'
-
-im1 = ax.imshow(list_of_matrix[0].data, cmap='jet', interpolation=inter)
-
-fig.colorbar(im1)
-
-axcolor = 'lightgoldenrodyellow'
-axmax  = fig.add_axes([0.25, 0.15, 0.65, 0.03], axisbg=axcolor)
-
-t = Slider(axmax, 'Tempo', 0, it-1, valinit=0, valfmt='%d')
-
-def update(val):
-    im1.set_data(list_of_matrix[int(t.val)].data)
-    fig.canvas.draw()
-t.on_changed(update)
-
-plt.show()
-
+    plt.show()
